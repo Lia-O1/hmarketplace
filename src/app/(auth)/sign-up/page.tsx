@@ -4,14 +4,15 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Gem } from "lucide-react";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AuthCredentialsValidator,
   TAuthCredentialsValidator,
 } from "@/lib/validators/account-credentials-validator";
+import { trpc } from "@/trpc/client";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Gem } from "lucide-react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
 
 const Page = () => {
   const {
@@ -22,8 +23,10 @@ const Page = () => {
     resolver: zodResolver(AuthCredentialsValidator),
   });
 
+  const { mutate, isLoading } = trpc.auth.createPayloadUser.useMutation({});
+
   const onSubmit = ({ email, password }: TAuthCredentialsValidator) => {
-    // send datta to a server
+    mutate({ email, password });
   };
 
   return (
@@ -60,16 +63,23 @@ const Page = () => {
                 </div>
 
                 <div className="grid gap-1 py-2">
-                  <Label htmlFor="password">Password</Label>;
+                  <Label htmlFor="password">Password</Label>
                   <Input
                     {...register("password")}
+                    type="password"
                     className={cn({
                       "focus-visible:ring-red-500": errors.password,
                     })}
                     placeholder="Password"
                   />
                 </div>
-                <Button>SIgn up</Button>
+                <Button
+                  className={buttonVariants({
+                    variant: "emerald",
+                  })}
+                >
+                  SIgn up
+                </Button>
               </div>
             </form>
           </div>
